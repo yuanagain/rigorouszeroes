@@ -6,6 +6,7 @@ from complexrational import ComplexRational
 from domain import RectDomain, neighborhood, fromInterval
 from newton import Newton
 import math
+import random
 
 class Algo:
 	def __init__(self, poly, domain, res=10**-6):
@@ -39,13 +40,12 @@ class Algo:
 		print("Zeroes: " + str(z_count))
 		if z_count == 1:
 			newton = Newton(domain.midpoint(), f)
-			if newton.iterate_until(self.res * 10**-6, 50):
-				# Verify that it is a zero
-				if argument_principle(f, fromInterval(newton.step) ) == 1:
-					return [(newton.next, 1)]
+			if newton.iterate_until(self.res, 50):
+				
+				verification = self.verify_zero(f, domain, newton.step, z_count) 
+				if verification != False:
+					return [verification]
 
-				# Expand the ball a little bit to resolution
-				# to attempt to capture the zero
 				ball = neighborhood(newton.step, self.res)
 				if argument_principle(f, fromInterval(ball) ) == 1:
 					return [(ball, 1)]
@@ -54,24 +54,43 @@ class Algo:
 			# attempt Newton search
 			newton = Newton(domain.midpoint(), f)
 			if newton.iterate_until(self.res, 50):
-				# TODO verify that it is a zero
-				if argument_principle(f, fromInterval(newton.step) ) == z_count:
-					return [(newton.next, z_count)]
 
 				# Expand the ball a little bit to resolution
 				# to attempt to capture the zero
-				ball = neighborhood(newton.step, self.res)
-				if argument_principle(f, fromInterval(ball) ) == z_count:
-					return [(ball, z_count)]
+				verification = self.verify_zero(f, domain, newton.step, z_count) 
+				if verification != False:
+					return [verification]
 
 			# Newton failed, bisect and repeat
 
-			domains = domain.bisect()
+			perturbation = this.res * (random.random() - 0.5) / 1000
+			domains = domain.bisect(perturbation)
 			for d in domains:
 				z_ct = argument_principle(f, d)
 				zeroes += self.search(f, d, z_ct)
+		#
+		# TODO refine statements on multiplciies of zeroes, 
+		# rule out higher order zeroes is possible.
+		#
 
 		return zeroes
+
+	def verify_zero(self, f, domain, z, k):
+		"""
+		Returns False if z is not a good approximation of a zero of multiplcity k, 
+		returns R^* containing z otherwise.
+		"""
+		if z not in domain.toInterval():
+			return False
+
+		# Expand the ball a little bit to resolution
+			# to attempt to capture the zero
+		ball = neighborhood(z, self.res)
+		if argument_principle(f, fromInterval(ball) ) == k:
+			return (ball, k)
+
+		return False
+
 
 def argument_principle(f, domain):
 	"""

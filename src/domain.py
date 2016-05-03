@@ -29,6 +29,9 @@ class RectDomain():
 		"""
 		return ComplexInterval(self.a, self.b)
 
+	def extrema(self):
+		return self.toInterval().extrema()
+
 	def __contains__(self, z):
 		"""
 		Returns true iff complex interval z is contained
@@ -120,8 +123,8 @@ def neighborhood(z, diameter = 10**-6):
 	Returns a neighborhood around the midpoint of z of a given diameter
 	"""
 	mid = z.midpoint()
-	topright = z.midpoint + _real(diameter / 2) + _im(diameter / 2)
-	bottomleft = z.midpoint - _real(diameter / 2) - _im(diameter / 2)
+	topright = z.midpoint() + _real(diameter / 2) + _im(diameter / 2)
+	bottomleft = z.midpoint() - _real(diameter / 2) - _im(diameter / 2)
 	return RectDomain(topright, bottomleft)
 
 def fromInterval(c_int):
