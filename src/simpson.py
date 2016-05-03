@@ -8,12 +8,13 @@ from complexpolynomial import ComplexPolynomial
 from complexrational import ComplexRational
 from domain import RectDomain
 
+import time
 import math
 
 def Simpson(g, 
 			line = ComplexInterval(interval([0,1]), interval([0])),
 			radius = math.pi/2 - 10**-14,
-			max_iterates = 100):
+			max_iterates = 10):
 	"""
 	Returns an interval containing the integral of 
 	our polynomial along the line, where the imaginary 
@@ -34,9 +35,13 @@ def Simpson(g,
 		j += 1 # temporary, until remainder bounds are fixed
 
 		val = _zero()
+		#print("len of nodes = " + str(len(nodes)))
 		for i in range(0, len(nodes) - 2, 2):
-			val = val + approx(g, nodes[i:i+3]) + remainder(G, nodes[i:i+3])
-
+			val = val + approx(g, nodes[i:i+3])  + remainder(G, nodes[i:i+3])
+		
+		#print("-------")
+		#print(val)
+		#time.sleep(1)
 		new_nodes = []
 		for i in range(len(nodes) - 1):
 			new_nodes.append(nodes[i])
@@ -44,10 +49,7 @@ def Simpson(g,
 		new_nodes.append(nodes[-1])
 
 		nodes = new_nodes
-
-
-		remainder_radius = val.im_radius()
-		print(remainder_radius)
+		#print(remainder_radius)
 
 	return val
 
@@ -55,7 +57,8 @@ def approx(g, nodes):
 	"""
 	Computes the approximation of g over the nodes for Simpson's method
 	"""
-	factor = g(nodes[2] - nodes[0]) / _real(6)
+	#print(len(nodes))
+	factor = (nodes[2] - nodes[0]) / _real(6)
 	_sum = g(nodes[0]) + _real(4) * g(nodes[1]) + g(nodes[2])
 	return factor * _sum
 
@@ -67,6 +70,8 @@ def getG(g):
 
 	for i in range(4):
 		G = G.derive()
+		if G.isZero():
+			return G
 
 	return G
 
@@ -115,7 +120,7 @@ def main():
 	a_6 = ComplexInterval(interval([5]), interval([0]))
 	a_7 = ComplexInterval(interval([5]), interval([0]))
 
-	line = ComplexInterval(interval([-12, 1.99]), interval([4.28]))
+	line = ComplexInterval(interval([1.88, 1.99]), interval([4.28]))
 	print(line)
 
 	poly_1 = ComplexPolynomial([a_1, a_2, a_3, a_4, a_5, a_6])
@@ -130,10 +135,22 @@ def main():
 	print("======")
 	print(poly_4)
 	print(poly_4.derive())
-	print("======")
+	print("=====")
+	print("g and g'")
 	g = ComplexRational(poly_4.derive(), poly_4)
+	print(g)
 	print(g.derive())
-	print(Simpson(g, line))
+	print("========")
+	print(g.evaluate(line))
+	print("#######")
+	#print(Simpson(g, line))
+	line = ComplexInterval(interval([-2, 7]), interval([3]))
+
+	print("**********")
+	poly_2 = ComplexPolynomial([_zero(), a_4])
+	h = ComplexRational(poly_2.derive(), poly_2 )
+	print(h)
+	print(Simpson(h, line))
 
 
 if __name__=="__main__":

@@ -3,7 +3,7 @@ from complexinterval import ComplexInterval, _one, _zero, _im
 from complexpolynomial import ComplexPolynomial
 from simpson import Simpson
 from complexrational import ComplexRational
-from domain import RectDomain, neighborhood
+from domain import RectDomain, neighborhood, fromInterval
 from newton import Newton
 import math
 
@@ -27,6 +27,7 @@ class Algo:
 		Searches our rectangular domain for zeroes. We are given 
 		that there are z_count zeroes of f in this domain.
 		"""
+
 		if z_count <= 0:
 			return []
 
@@ -35,18 +36,18 @@ class Algo:
 			return [(domain, z_count)]
 
 		zeroes = []
-
+		print("Zeroes: " + str(z_count))
 		if z_count == 1:
 			newton = Newton(domain.midpoint(), f)
 			if newton.iterate_until(self.res * 10**-6, 50):
 				# Verify that it is a zero
-				if argument_principle(f, newton.next) == 1:
+				if argument_principle(f, fromInterval(newton.step) ) == 1:
 					return [(newton.next, 1)]
 
 				# Expand the ball a little bit to resolution
 				# to attempt to capture the zero
-				ball = neighborhood(newton.next, self.res)
-				if argument_principle(f, ball) == 1:
+				ball = neighborhood(newton.step, self.res)
+				if argument_principle(f, fromInterval(ball) ) == 1:
 					return [(ball, 1)]
 
 		else:
@@ -54,17 +55,16 @@ class Algo:
 			newton = Newton(domain.midpoint(), f)
 			if newton.iterate_until(self.res, 50):
 				# TODO verify that it is a zero
-				if argument_principle(f, newton.next) == z_count:
+				if argument_principle(f, fromInterval(newton.step) ) == z_count:
 					return [(newton.next, z_count)]
 
 				# Expand the ball a little bit to resolution
 				# to attempt to capture the zero
-				ball = neighborhood(newton.next, self.res)
-				if argument_principle(f, ball) == z_count:
+				ball = neighborhood(newton.step, self.res)
+				if argument_principle(f, fromInterval(ball) ) == z_count:
 					return [(ball, z_count)]
 
 			# Newton failed, bisect and repeat
-			print("Bisecting")
 
 			domains = domain.bisect()
 			for d in domains:
@@ -80,16 +80,23 @@ def argument_principle(f, domain):
 	exist in tje domain. Unexpected behavior likely result of the
 	existence of a zero on the domain boundary.
 	"""
-	summand = _zero()
+	return firstInt(integrate(f, domain))
+
+def integrate(f, domain):
+	summs = _zero()
 	edges = domain.edges()
 	g = ComplexRational(f.derive(), f)
 	for i in range(len(edges)):
-		if (i < 2):
-			summand = summand - Simpson(g, edges[i])
+
+		summand = 0
+		if (i >= 2):
+			summand = -Simpson(g, edges[i])
 		else:
-			summand = summand + Simpson(g, edges[i])
-	summand = summand / _im(math.pi * 2)
-	return firstInt(summand)
+			summand = Simpson(g, edges[i])
+		summs += summand
+		print(summand)
+	summs = summs / _im(math.pi * 2)
+	return summs
 
 def firstInt(intvl):
 	"""
@@ -175,37 +182,51 @@ def main():
 
 	print("Function:")
 	print(poly_1)
-	print("Zeroes: " + str(argument_principle(poly_1, domain_2 )))
+	#print("Zeroes: " + str(argument_principle(poly_1, domain_2 )))
 
 	print("Function:")
 	poly_2 = ComplexPolynomial([_zero(), a_4])
 	print(poly_2)
-	print("Zeroes: " + str(argument_principle(poly_2, domain_2 )))
+	#print("Zeroes: " + str(argument_principle(poly_2, domain_2 )))
 
 	print("Function:")
 	poly_3 = ComplexPolynomial([a_5, a_6, a_3, a_1, a_0, a_3])
 	print(poly_3)
-	print("Zeroes: " + str(argument_principle(poly_3, domain_2 )))
+	#print("Zeroes: " + str(argument_principle(poly_3, domain_2 )))
 
 	print("Function:")
 	poly_4 = ComplexPolynomial([a_5, a_6, a_3])
 	print(poly_4)
-	print("Zeroes: " + str(argument_principle(poly_4, domain_2 )))
+	#print("Zeroes: " + str(argument_principle(poly_4, domain_2 )))
 
 	print("Function:")
 	poly_5 = ComplexPolynomial([a_5])
 	print(poly_5)
-	print("Zeroes: " + str(argument_principle(poly_5, domain_2 )))
+	#print("Zeroes: " + str(argument_principle(poly_5, domain_2 )))
+
+	# print(domain_2)
+	# algo_1 = Algo(poly_1, domain_2)
+	# print(algo_1.getZeroes())
+
+	algo_2 = Algo(poly_2, domain_2)
+	zeroes_2 = algo_2.getZeroes()
+	print(zeroes_2)
+	print(len(zeroes_2))
 
 
-	algo_1 = Algo(poly_1, domain_2)
-	print(algo_1.getZeroes())
+	# algo_3 = Algo(poly_2, domain_2)
+	# print(algo_3.getZeroes())
 
-	algo_3 = Algo(poly_3, domain_2)
-	print(algo_3.getZeroes())
+	#algo_5 = Algo(poly_5, domain_2)
+	#print(algo_5.getZeroes())
 
-	algo_5 = Algo(poly_5, domain_2)
-	print(algo_5.getZeroes())
+	# print("+++++++++++===========+++++++++++")
+	# print(poly_2)
+	# h = ComplexRational(poly_2.derive(), poly_2)
+	# print(h)
+	# print(domain_2)
+	# print('side integrals')
+	# print(integrate(poly_2, domain_2))
 
 if __name__=="__main__":
 	main()

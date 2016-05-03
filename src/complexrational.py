@@ -7,8 +7,9 @@ Yuan Wang
 Princeton University
 """
 from interval import interval, inf, imath
-from complexinterval import ComplexInterval, _one, _zero, _real
-from complexpolynomial import ComplexPolynomial
+from complexinterval import ComplexInterval, _one, _zero, _real, _im
+from complexpolynomial import ComplexPolynomial, _identity, _constant
+from domain import RectDomain, fromInterval
 import operator
 import numpy as np
 import math
@@ -29,9 +30,10 @@ class ComplexRational:
 		Returns a rational function that is the 1st derivative of 
 		the current rational function
 		"""
+		## check if zero
 
 		num = self.q * self.p.derive() - self.p * self.q.derive()
-		denom = self.p * self.p
+		denom = self.q * self.q
 		return ComplexRational(num, denom)
 
 	def evaluate(self, z):
@@ -64,8 +66,8 @@ def main():
 	wb = interval([3, 3])
 	w = ComplexInterval(wa, wb)
 
-	za = interval([4, 4])
-	zb = interval([5, 5])	
+	za = interval([4])
+	zb = interval([5])	
 	z = ComplexInterval(za, zb)
 
 	a_0_a = interval([1, 1])
@@ -110,8 +112,9 @@ def main():
 	print(rat_1)
 	rat_2 = ComplexRational(poly_1, poly_1.derive())
 	print(rat_2)
-	rat_3 = ComplexRational(poly_5, poly_5)
+	rat_3 = ComplexRational(poly_5, _identity())
 	print(rat_3)
+
 
 	print("============================")
 	print("Evaluation")
@@ -137,7 +140,15 @@ def main():
 	print(rat_3.derive().isZero())
 
 	print("============================")
-	
+	poly_6 = ComplexPolynomial([_zero(), _real(-6) + _im(1)])
+	print(poly_6)
+	rat_3 = ComplexRational(poly_5, poly_5)
+	print(rat_3)
+	d_4 = rat_3.derive()
+	print(d_4)
+	d_5 = d_4.derive()
+	print(d_5)
+	print(d_4(z))
 
 if __name__=="__main__":
 	main()

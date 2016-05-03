@@ -248,6 +248,8 @@ def main():
 	for ex in extrema: 
 		print(ex)
 
+	
+
 if __name__=="__main__":
 	main()
 

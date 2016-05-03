@@ -124,6 +124,13 @@ def neighborhood(z, diameter = 10**-6):
 	bottomleft = z.midpoint - _real(diameter / 2) - _im(diameter / 2)
 	return RectDomain(topright, bottomleft)
 
+def fromInterval(c_int):
+	"""
+	Returns a Rect_Domain corresponding to a given complex interval
+	"""
+	extrema = c_int.extrema()
+	return RectDomain(extrema[0], extrema[2])
+
 def main():
 	print("Testing Rectangular Domains")
 	print("----------------------------")

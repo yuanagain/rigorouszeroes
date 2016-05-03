@@ -113,6 +113,18 @@ class ComplexPolynomial:
 
 		return ComplexPolynomial(coeffs)
 
+def _identity():
+	"""
+	Returns the monomial f(z) = 1
+	"""
+	return ComplexPolynomial([ComplexInterval(interval([1]), interval([0]))])
+
+def _constant(k):
+	"""
+	Returns the monomial f(z) = k
+	"""
+	return ComplexPolynomial([ComplexInterval(interval([k]), interval([0]))])
+
 def main():
 	print("Testing Complex Polynomials")
 	print("----------------------------")
@@ -152,9 +164,9 @@ def main():
 	a_4_b = interval([1, 1])
 	a_4 = ComplexInterval(a_4_a, a_4_b)
 
-	a_5 = ComplexInterval(interval([4]), interval([0]))
-	a_6 = ComplexInterval(interval([5]), interval([0]))
-	a_7 = ComplexInterval(interval([5]), interval([0]))
+	a_5 = ComplexInterval(interval([4]), interval([1]))
+	a_6 = ComplexInterval(interval([5]), interval([2]))
+	a_7 = ComplexInterval(interval([5]), interval([3]))
 
 	coeffs = [a_1, a_2, a_3, a_4]
 
@@ -214,7 +226,14 @@ def main():
 	print(poly_4 - poly_2)
 	print(poly_1 - poly_5)
 
+
+
 	print("============================")
+
+	print(poly_4)
+	print(poly_5)
+
+	print(poly_4 * poly_5)
 	
 
 if __name__=="__main__":
